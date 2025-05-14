@@ -1,3 +1,4 @@
+package dev.codefortress.core.easy_security_core_jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.util.StringUtils;

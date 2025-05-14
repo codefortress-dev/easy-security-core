@@ -1,3 +1,4 @@
+package dev.codefortress.core.easy_context;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 
 @AutoConfiguration

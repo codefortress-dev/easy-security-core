@@ -1,9 +1,9 @@
+package dev.codefortress.core.easy_licensing;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 
 public class StoredLicenseCache {
 

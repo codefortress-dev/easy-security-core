@@ -1,3 +1,4 @@
+package dev.codefortress.core.easy_context;
 public class TenantContext {
     private final String tenantId;
 

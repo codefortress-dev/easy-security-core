@@ -1,3 +1,4 @@
+package dev.codefortress.core.easy_licensing;
 import java.time.LocalDate;
 
 public class LicenseInfo {

@@ -1,3 +1,4 @@
+package dev.codefortress.core.easy_licensing;
 public class LicenseSignatureVerifier {
 
     /**

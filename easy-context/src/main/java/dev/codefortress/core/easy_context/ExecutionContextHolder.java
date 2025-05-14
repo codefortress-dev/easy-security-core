@@ -1,3 +1,4 @@
+package dev.codefortress.core.easy_context;
 public class ExecutionContextHolder {
 
     private static final ThreadLocal<UserContext> userContext = new ThreadLocal<>();

@@ -1,6 +1,7 @@
+package dev.codefortress.core.easy_licensing;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.http.HttpStatus;
-import java.time.LocalDate;
+import org.springframework.http.HttpStatusCode;
+
 
 public class LicenseRemoteValidator {
 
@@ -19,7 +20,7 @@ public class LicenseRemoteValidator {
                     .uri("/validate")
                     .bodyValue(new LicenseValidationRequest(properties.getProduct(), properties.getKey()))
                     .retrieve()
-                    .onStatus(HttpStatus::isError, response ->
+                    .onStatus(HttpStatusCode::isError, response ->
                             response.createException().map(LicenseException::new)
                     )
                     .bodyToMono(LicenseInfo.class)

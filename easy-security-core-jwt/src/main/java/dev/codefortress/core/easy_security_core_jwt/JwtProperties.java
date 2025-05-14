@@ -1,3 +1,4 @@
+package dev.codefortress.core.easy_security_core_jwt;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "easy.security.jwt")
