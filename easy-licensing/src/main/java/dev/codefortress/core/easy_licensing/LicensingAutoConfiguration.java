@@ -1,11 +1,9 @@
 package dev.codefortress.core.easy_licensing;
 
-
+import dev.codefortress.core.easy_config_ui.EasyConfigScanner;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-
-import dev.codefortress.core.easy_config_ui.EasyConfigScanner;
 
 @AutoConfiguration
 @EnableConfigurationProperties(SecuritySuiteLicenseProperties.class)
@@ -27,7 +25,23 @@ public class LicensingAutoConfiguration {
         return new LicenseValidator(env, remote, cache, verifier);
     }
 
-    // Otros beans como LicenseRemoteValidator, StoredLicenseCache, etc., se configuran igual
-}
+    @Bean
+    public LicenseRemoteValidator licenseRemoteValidator() {
+        return new LicenseRemoteValidator();
+    }
 
+    @Bean
+    public LicenseEnvironmentResolver licenseEnvironmentResolver() {
+        return new LicenseEnvironmentResolver();
+    }
+
+    @Bean
+    public StoredLicenseCache storedLicenseCache() {
+        return new StoredLicenseCache();
+    }
+
+    @Bean
+    public LicenseSignatureVerifier licenseSignatureVerifier() {
+        return new LicenseSignatureVerifier();
+    }
 }
