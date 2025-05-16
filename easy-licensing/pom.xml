@@ -53,5 +53,10 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>dev.codefortress.core</groupId>
+      <artifactId>easy-config-ui</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>
