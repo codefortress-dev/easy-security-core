@@ -47,7 +47,7 @@ public class ConfigurationValidator {
         }
 
         if (!errores.isEmpty()) {
-            System.err.println("❌ Configuración inválida en clase: " + clazz.getSimpleName());
+            System.err.println("Configuración inválida en clase: " + clazz.getSimpleName());
             errores.forEach(e -> System.err.println(" - " + e));
             throw new IllegalStateException("Error en configuración: " + clazz.getSimpleName());
         }

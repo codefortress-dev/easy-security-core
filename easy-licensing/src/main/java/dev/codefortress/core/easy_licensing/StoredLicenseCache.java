@@ -1,52 +1,79 @@
 package dev.codefortress.core.easy_licensing;
 
 import java.io.*;
-import java.nio.file.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
 
 public class StoredLicenseCache {
 
-    private final Path cacheDir = Paths.get(System.getProperty("user.home"), ".easy-licenses");
+    private static final String FILE_NAME = ".easy-licenses.properties";
 
-    public void store(LicenseInfo info) {
-        try {
-            if (!Files.exists(cacheDir)) {
-                Files.createDirectories(cacheDir);
-            }
-            Path file = cacheDir.resolve("license-" + info.getProduct() + ".json");
-            try (BufferedWriter writer = Files.newBufferedWriter(file)) {
-                writer.write("{");
-                writer.write("\"key\":\"" + info.getKey() + "\",");
-                writer.write("\"status\":\"" + info.getStatus().name() + "\",");
-                writer.write("\"source\":\"CACHE\"");
-                writer.write("}");
-            }
-        } catch (IOException ignored) {}
+    private final File storage;
+
+    public StoredLicenseCache() {
+        this.storage = Path.of(System.getProperty("user.home"), FILE_NAME).toFile();
     }
 
-    public LicenseInfo get(String product) {
+    public void save(LicenseInfo license) {
         try {
-            Path file = cacheDir.resolve("license-" + product + ".json");
-            if (!Files.exists(file)) return null;
+            Properties props = load();
+            String prefix = license.getProduct() + ".";
+            props.setProperty(prefix + "domain", license.getDomain());
+            props.setProperty(prefix + "signature", license.getSignature());
+            if (license.getFingerprint() != null) {
+                props.setProperty(prefix + "fingerprint", license.getFingerprint());
+            }
+            try (FileWriter writer = new FileWriter(storage)) {
+                props.store(writer, "Licencias activadas CodeFortress");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("No se pudo guardar la licencia en cache local.", e);
+        }
+    }
 
-            String content = Files.readString(file);
-            Map<String, String> parsed = parse(content);
-            return new LicenseInfo(product, parsed.get("key"), LicenseCheckResult.valueOf(parsed.get("status")), "CACHE");
+    public LicenseInfo load(String product) {
+        try {
+            Properties props = load();
+            String domain = props.getProperty(product + ".domain");
+            String signature = props.getProperty(product + ".signature");
+            String fingerprint = props.getProperty(product + ".fingerprint");
 
-        } catch (Exception e) {
+            if (domain == null || signature == null) {
+                return null;
+            }
+
+            LicenseInfo license = new LicenseInfo(product, domain, signature);
+            license.setFingerprint(fingerprint);
+            return license;
+
+        } catch (IOException e) {
             return null;
         }
     }
 
-    private Map<String, String> parse(String json) {
-        Map<String, String> map = new HashMap<>();
-        json = json.replaceAll("[{}\" ]", "");
-        String[] parts = json.split(",");
-        for (String part : parts) {
-            String[] pair = part.split(":");
-            if (pair.length == 2) map.put(pair[0], pair[1]);
+    private Properties load() throws IOException {
+        Properties props = new Properties();
+        if (storage.exists()) {
+            try (FileReader reader = new FileReader(storage)) {
+                props.load(reader);
+            }
         }
-        return map;
+        return props;
+    }
+
+    public void clear(String product) {
+        try {
+            Properties props = load();
+            String prefix = product + ".";
+            props.remove(prefix + "domain");
+            props.remove(prefix + "signature");
+            props.remove(prefix + "fingerprint");
+            try (FileWriter writer = new FileWriter(storage)) {
+                props.store(writer, "Licencias actualizadas");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("No se pudo limpiar la cache local para el producto: " + product, e);
+        }
     }
 }

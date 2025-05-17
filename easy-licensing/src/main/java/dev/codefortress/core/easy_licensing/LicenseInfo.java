@@ -3,17 +3,16 @@ package dev.codefortress.core.easy_licensing;
 public class LicenseInfo {
 
     private String product;
-    private String key;
-    private LicenseCheckResult status;
-    private String source; // REMOTE, CACHE, OFFLINE, etc.
+    private String domain;
+    private String signature;
+    private String fingerprint; // Campo nuevo
 
     public LicenseInfo() {}
 
-    public LicenseInfo(String product, String key, LicenseCheckResult status, String source) {
+    public LicenseInfo(String product, String domain, String signature) {
         this.product = product;
-        this.key = key;
-        this.status = status;
-        this.source = source;
+        this.domain = domain;
+        this.signature = signature;
     }
 
     public String getProduct() {
@@ -24,27 +23,37 @@ public class LicenseInfo {
         this.product = product;
     }
 
-    public String getKey() {
-        return key;
+    public String getDomain() {
+        return domain;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 
-    public LicenseCheckResult getStatus() {
-        return status;
+    public String getSignature() {
+        return signature;
     }
 
-    public void setStatus(LicenseCheckResult status) {
-        this.status = status;
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 
-    public String getSource() {
-        return source;
+    public String getFingerprint() {
+        return fingerprint;
     }
 
-    public void setSource(String source) {
-        this.source = source;
+    public void setFingerprint(String fingerprint) {
+        this.fingerprint = fingerprint;
+    }
+
+    @Override
+    public String toString() {
+       return "LicenseInfo{" +
+            "product='" + product + '\'' +
+            ", domain='" + domain + '\'' +
+            ", signature='" + signature + '\'' +
+            ", fingerprint='" + fingerprint + '\'' +
+            '}';
     }
 }

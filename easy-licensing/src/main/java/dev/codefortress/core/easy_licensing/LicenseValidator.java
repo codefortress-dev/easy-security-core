@@ -1,74 +1,72 @@
 package dev.codefortress.core.easy_licensing;
 
-import java.time.Duration;
-import java.time.Instant;
+import java.util.List;
+import java.util.Objects;
 
 public class LicenseValidator {
 
-    private static final int TRIAL_DAYS = 21;
-
-    private final LicenseEnvironmentResolver environmentResolver;
+    private final SecuritySuiteLicenseProperties properties;
+    private final LicenseEnvironmentResolver envResolver;
     private final LicenseRemoteValidator remoteValidator;
     private final StoredLicenseCache cache;
     private final LicenseSignatureVerifier verifier;
-    private final TrialMetadataStore trialMetadataStore = new TrialMetadataStore();
 
-    public LicenseValidator(
-        LicenseEnvironmentResolver environmentResolver,
-        LicenseRemoteValidator remoteValidator,
-        StoredLicenseCache cache,
-        LicenseSignatureVerifier verifier
-    ) {
-        this.environmentResolver = environmentResolver;
+    public LicenseValidator(SecuritySuiteLicenseProperties properties,
+                            LicenseEnvironmentResolver envResolver,
+                            LicenseRemoteValidator remoteValidator,
+                            StoredLicenseCache cache,
+                            LicenseSignatureVerifier verifier) {
+        this.properties = properties;
+        this.envResolver = envResolver;
         this.remoteValidator = remoteValidator;
         this.cache = cache;
         this.verifier = verifier;
     }
 
-    public LicenseCheckResult validate(SecuritySuiteLicenseProperties props) {
-        String product = "security-suite";
-        String key = props.getKey();
-        String domain = environmentResolver.resolveDomain();
+    public LicenseCheckResult validate(String email, String password, String projectOrDomain) {
+        String currentDomain = envResolver.resolveDomain();
 
-        if (environmentResolver.isDevOrLocal()) {
-            return LicenseCheckResult.DEVELOPMENT_MODE;
+        if (email == null || email.isBlank() ||
+            password == null || password.isBlank() ||
+            projectOrDomain == null || projectOrDomain.isBlank()) {
+            return LicenseCheckResult.invalid("Todos los parámetros (email, clave, proyecto o dominio) son obligatorios.");
         }
 
-        if (key != null && !key.isBlank()) {
-            // Intentar validación remota
-            LicenseInfo info = remoteValidator.validate(product, key, domain);
-            if (info != null && info.getStatus() == LicenseCheckResult.VALID) {
-                cache.store(info);
-                return LicenseCheckResult.VALID;
-            }
-
-            // Fallback: validar desde cache local
-            LicenseInfo cached = cache.get(product);
-            if (cached != null && cached.getStatus() == LicenseCheckResult.VALID) {
-                return LicenseCheckResult.VALID;
-            }
-
-            // Validación offline con firma digital (si aplicas)
-            if (verifier.isValidSignature(key, product, domain)) {
-                return LicenseCheckResult.VALID;
-            }
-
-            return LicenseCheckResult.INVALID;
+        List<LicenseInfo> licencias = remoteValidator.getLicenses(email, password);
+        if (licencias.isEmpty()) {
+            return LicenseCheckResult.invalid("No se encontraron licencias para este usuario.");
         }
 
-        // No hay clave: modo trial
-        Instant trialStart = trialMetadataStore.getTrialStart(product);
-        if (trialStart == null) {
-            trialStart = Instant.now();
-            trialMetadataStore.saveTrialStart(product, trialStart);
-            return LicenseCheckResult.TRIAL;
+        String product = properties.getProduct();
+        LicenseInfo licencia = licencias.stream()
+            .filter(l -> Objects.equals(l.getProduct(), product))
+            .findFirst()
+            .orElse(null);
+
+        if (licencia == null) {
+            return LicenseCheckResult.invalid("No se encontró una licencia válida para el producto: " + product);
         }
 
-        long days = Duration.between(trialStart, Instant.now()).toDays();
-        if (days <= TRIAL_DAYS) {
-            return LicenseCheckResult.TRIAL;
+        // Validar y/o registrar dominio
+        if (licencia.getDomain() == null || licencia.getDomain().isBlank()) {
+            // Primera activación: reemplazamos el nombre del proyecto por el dominio actual
+            licencia.setDomain(currentDomain);
+            cache.save(licencia);
+        } else if (!Objects.equals(licencia.getDomain(), currentDomain)) {
+            return LicenseCheckResult.invalid("La licencia está registrada para otro dominio.");
         }
 
-        return LicenseCheckResult.TRIAL_EXPIRED;
+        // Validación de firma
+        if (!verifier.verify(licencia)) {
+            return LicenseCheckResult.invalid("Firma de licencia no válida.");
+        }
+        // Generar fingerprint y guardar
+        LicenseFingerprintGenerator generator = new LicenseFingerprintGenerator();  
+        licencia.setFingerprint(generator.generateFingerprint(licencia));
+        cache.save(licencia);
+
+        // Guardar en cache local
+        cache.save(licencia);
+        return LicenseCheckResult.valid(licencia);
     }
 }
