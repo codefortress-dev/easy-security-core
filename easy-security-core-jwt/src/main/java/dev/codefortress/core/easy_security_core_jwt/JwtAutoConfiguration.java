@@ -6,13 +6,18 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * Autoconfiguración para el submódulo easy-security-core-jwt.
+ * Registra automáticamente las propiedades y el utilitario de JWT,
+ * habilitando su uso desde cualquier módulo comercial sin configuración adicional.
+ */
 @AutoConfiguration
 @EnableConfigurationProperties(JwtProperties.class)
 public class JwtAutoConfiguration {
 
     /**
-     * Este método valida y registra la clase JwtProperties para escaneo por la UI.
-     * Se asegura que los valores externos del usuario estén correctos al iniciar.
+     * Registra y valida anticipadamente las propiedades de JWT.
+     * También permite que sean modificadas en caliente si se integra con easy-config-ui.
      */
     @Bean
     public JwtProperties validatedJwtProperties(JwtProperties props) {
@@ -22,11 +27,10 @@ public class JwtAutoConfiguration {
     }
 
     /**
-     * Instancia JwtTokenUtil usando los valores ya validados por Spring y tu anotación.
+     * Crea el utilitario de JWT listo para usarse con las propiedades configuradas.
      */
     @Bean
     public JwtTokenUtil jwtTokenUtil(JwtProperties props) {
         return new JwtTokenUtil(props.getSecretKey(), props.getExpirationSeconds());
     }
 }
-
