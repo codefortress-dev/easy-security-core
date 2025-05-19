@@ -1,6 +1,5 @@
 package dev.codefortress.core.easy_licensing;
 
-import java.util.List;
 import java.util.Objects;
 
 public class LicenseValidator {
@@ -32,41 +31,30 @@ public class LicenseValidator {
             return LicenseCheckResult.invalid("Todos los parámetros (email, clave, proyecto o dominio) son obligatorios.");
         }
 
-        List<LicenseInfo> licencias = remoteValidator.getLicenses(email, password);
-        if (licencias.isEmpty()) {
-            return LicenseCheckResult.invalid("No se encontraron licencias para este usuario.");
-        }
-
         String product = properties.getProduct();
-        LicenseInfo licencia = licencias.stream()
-            .filter(l -> Objects.equals(l.getProduct(), product))
-            .findFirst()
-            .orElse(null);
+        String key = properties.getKey();
+
+        LicenseInfo licencia = remoteValidator.validate(product, key, currentDomain);
 
         if (licencia == null) {
             return LicenseCheckResult.invalid("No se encontró una licencia válida para el producto: " + product);
         }
 
-        // Validar y/o registrar dominio
         if (licencia.getDomain() == null || licencia.getDomain().isBlank()) {
-            // Primera activación: reemplazamos el nombre del proyecto por el dominio actual
             licencia.setDomain(currentDomain);
             cache.save(licencia);
         } else if (!Objects.equals(licencia.getDomain(), currentDomain)) {
             return LicenseCheckResult.invalid("La licencia está registrada para otro dominio.");
         }
 
-        // Validación de firma
         if (!verifier.verify(licencia)) {
             return LicenseCheckResult.invalid("Firma de licencia no válida.");
         }
-        // Generar fingerprint y guardar
-        LicenseFingerprintGenerator generator = new LicenseFingerprintGenerator();  
+
+        LicenseFingerprintGenerator generator = new LicenseFingerprintGenerator();
         licencia.setFingerprint(generator.generateFingerprint(licencia));
         cache.save(licencia);
 
-        // Guardar en cache local
-        cache.save(licencia);
         return LicenseCheckResult.valid(licencia);
     }
 }
