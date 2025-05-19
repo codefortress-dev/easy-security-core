@@ -1,6 +1,6 @@
 package dev.codefortress.core.easy_licensing;
 
-import dev.codefortress.core.easy_config_ui.annotation.EasyConfigProperty;
+import dev.codefortress.core.easy_config_ui.EasyConfigProperty;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

@@ -5,6 +5,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface EasyConfigProperty {
+    String value() default ""; // ✅ permite usar la anotación de forma directa
+
     String description() default "";
 
     boolean required() default false;
