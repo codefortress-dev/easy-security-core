@@ -5,8 +5,25 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
 
+/**
+ * Genera una huella digital (fingerprint) para la licencia actual,
+ * con el fin de verificar que se mantenga en el entorno autorizado.
+ *
+ * La huella está compuesta por:
+ * - Producto
+ * - Dominio activado
+ * - Nombre del archivo .jar que ejecuta la aplicación
+ *
+ * El algoritmo utilizado es SHA-256 y codificación Base64.
+ */
 public class LicenseFingerprintGenerator {
 
+    /**
+     * Genera la huella para la licencia proporcionada.
+     *
+     * @param license licencia validada
+     * @return cadena Base64 que representa la huella
+     */
     public String generateFingerprint(LicenseInfo license) {
         try {
             String jarName = getJarFileName();
@@ -19,6 +36,9 @@ public class LicenseFingerprintGenerator {
         }
     }
 
+    /**
+     * Intenta obtener el nombre del archivo .jar que ejecuta la aplicación.
+     */
     private String getJarFileName() {
         try {
             String path = LicenseFingerprintGenerator.class

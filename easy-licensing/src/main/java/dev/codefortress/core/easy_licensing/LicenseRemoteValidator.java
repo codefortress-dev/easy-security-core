@@ -2,9 +2,15 @@ package dev.codefortress.core.easy_licensing;
 
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.stereotype.Component;
 
-@Component
+/**
+ * Cliente HTTP para validar licencias en el servidor comercial remoto.
+ * Realiza una llamada POST con el producto, clave y dominio actual, y espera
+ * como respuesta una licencia firmada.
+ *
+ * Este cliente no debe inyectarse automáticamente; debe registrarse
+ * desde LicensingAutoConfiguration.
+ */
 public class LicenseRemoteValidator {
 
     private final WebClient client;
@@ -15,6 +21,14 @@ public class LicenseRemoteValidator {
                 .build();
     }
 
+    /**
+     * Envía la solicitud de validación de licencia al servidor.
+     *
+     * @param product identificador del producto (ej: security-suite)
+     * @param key clave de activación
+     * @param domain dominio desde el cual se activa
+     * @return objeto LicenseInfo si es válida, o null si falló
+     */
     public LicenseInfo validate(String product, String key, String domain) {
         try {
             return client.post()
@@ -28,5 +42,8 @@ public class LicenseRemoteValidator {
         }
     }
 
+    /**
+     * Representa el cuerpo de la solicitud de validación de licencia.
+     */
     private record ValidationRequest(String product, String key, String domain) {}
 }

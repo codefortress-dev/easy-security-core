@@ -2,6 +2,13 @@ package dev.codefortress.core.easy_licensing;
 
 import java.util.Objects;
 
+/**
+ * Validador central de licencias Pro.
+ * Esta clase verifica si la licencia es válida para el producto,
+ * si el dominio es correcto, si la firma es válida y si debe persistirse localmente.
+ *
+ * Es usada por todos los módulos comerciales de CodeFortress.
+ */
 public class LicenseValidator {
 
     private final SecuritySuiteLicenseProperties properties;
@@ -22,6 +29,14 @@ public class LicenseValidator {
         this.verifier = verifier;
     }
 
+    /**
+     * Valida la licencia del producto actual para el entorno en ejecución.
+     *
+     * @param email correo del usuario que compró la licencia
+     * @param password clave secreta asociada
+     * @param projectOrDomain nombre del proyecto (si aún no tiene dominio) o dominio usado en la compra
+     * @return resultado de la validación (válida, inválida o error)
+     */
     public LicenseCheckResult validate(String email, String password, String projectOrDomain) {
         String currentDomain = envResolver.resolveDomain();
 
@@ -34,12 +49,14 @@ public class LicenseValidator {
         String product = properties.getProduct();
         String key = properties.getKey();
 
+        // Solicita la validación remota al backend comercial
         LicenseInfo licencia = remoteValidator.validate(product, key, currentDomain);
 
         if (licencia == null) {
             return LicenseCheckResult.invalid("No se encontró una licencia válida para el producto: " + product);
         }
 
+        // Si aún no estaba asociada a un dominio, lo fija
         if (licencia.getDomain() == null || licencia.getDomain().isBlank()) {
             licencia.setDomain(currentDomain);
             cache.save(licencia);
@@ -47,10 +64,12 @@ public class LicenseValidator {
             return LicenseCheckResult.invalid("La licencia está registrada para otro dominio.");
         }
 
+        // Verifica la firma
         if (!verifier.verify(licencia)) {
             return LicenseCheckResult.invalid("Firma de licencia no válida.");
         }
 
+        // Genera y guarda la huella
         LicenseFingerprintGenerator generator = new LicenseFingerprintGenerator();
         licencia.setFingerprint(generator.generateFingerprint(licencia));
         cache.save(licencia);

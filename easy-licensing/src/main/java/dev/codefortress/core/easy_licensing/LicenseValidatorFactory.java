@@ -1,7 +1,11 @@
 package dev.codefortress.core.easy_licensing;
 
 /**
- * Fábrica de validadores reutilizable para múltiples módulos.
+ * Fábrica reutilizable de instancias de LicenseValidator
+ * para distintos módulos Pro.
+ *
+ * Permite evitar duplicación de dependencias comunes
+ * y facilita la extensión hacia otros productos.
  */
 public class LicenseValidatorFactory {
 
@@ -21,10 +25,14 @@ public class LicenseValidatorFactory {
         this.verifier = verifier;
     }
 
+    /**
+     * Crea una instancia de LicenseValidator para el módulo Security Suite.
+     */
     public LicenseValidator create(SecuritySuiteLicenseProperties props) {
         return new LicenseValidator(props, envResolver, remoteValidator, cache, verifier);
     }
 
-    // En el futuro: agregar otros tipos de propiedades
+    // En el futuro:
     // public LicenseValidator create(GatewaySuiteLicenseProperties props) { ... }
+    // public LicenseValidator create(DataToolkitLicenseProperties props) { ... }
 }

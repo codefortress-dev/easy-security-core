@@ -1,11 +1,18 @@
 package dev.codefortress.core.easy_licensing;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Properties;
 
+/**
+ * Almacena y gestiona la metadata relacionada con el modo de prueba (trial)
+ * de los módulos Pro. El periodo de prueba tiene una duración de 21 días
+ * desde la primera ejecución en producción.
+ *
+ * Esta clase utiliza un archivo local ~/.easy-trial.properties
+ * y su validez es independiente por entorno (no por producto).
+ */
 public class TrialMetadataStore {
 
     private static final String FILE_NAME = ".easy-trial.properties";
@@ -18,15 +25,24 @@ public class TrialMetadataStore {
         this.storage = Path.of(System.getProperty("user.home"), FILE_NAME).toFile();
     }
 
+    /**
+     * Indica si el periodo de prueba todavía es válido.
+     */
     public boolean isTrialValid() {
         LocalDate start = getTrialStartDate();
         return start != null && !start.plusDays(TRIAL_DAYS).isBefore(LocalDate.now());
     }
 
+    /**
+     * Indica si el periodo de prueba ha expirado.
+     */
     public boolean isTrialExpired() {
         return !isTrialValid();
     }
 
+    /**
+     * Obtiene la fecha en que comenzó el modo trial.
+     */
     public LocalDate getTrialStartDate() {
         try {
             if (!storage.exists()) return null;
@@ -43,6 +59,9 @@ public class TrialMetadataStore {
         }
     }
 
+    /**
+     * Si aún no se ha iniciado el periodo de prueba, lo registra con la fecha actual.
+     */
     public void ensureTrialStarted() {
         if (getTrialStartDate() != null) return;
 

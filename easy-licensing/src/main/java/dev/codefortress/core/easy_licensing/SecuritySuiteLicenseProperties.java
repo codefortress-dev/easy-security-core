@@ -4,6 +4,11 @@ import dev.codefortress.core.easy_config_ui.AutoLoadable;
 import dev.codefortress.core.easy_config_ui.EasyConfigProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Propiedades de configuración para la licencia del módulo
+ * easy-security-suite. Pueden ser cargadas desde YAML o
+ * modificadas en caliente si se integra con easy-config-ui.
+ */
 @ConfigurationProperties(prefix = "easy.license.security-suite")
 @AutoLoadable
 public class SecuritySuiteLicenseProperties {
@@ -28,5 +33,12 @@ public class SecuritySuiteLicenseProperties {
 
     public void setTrialStartTimestamp(long trialStartTimestamp) {
         this.trialStartTimestamp = trialStartTimestamp;
+    }
+
+    /**
+     * Devuelve el identificador del producto asociado.
+     */
+    public String getProduct() {
+        return "security-suite";
     }
 }

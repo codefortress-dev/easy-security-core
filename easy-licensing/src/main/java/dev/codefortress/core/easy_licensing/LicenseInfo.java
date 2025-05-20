@@ -1,11 +1,15 @@
 package dev.codefortress.core.easy_licensing;
 
+/**
+ * Representa una licencia activa, ya sea recuperada del servidor
+ * o almacenada localmente en caché.
+ */
 public class LicenseInfo {
 
     private String product;
     private String domain;
     private String signature;
-    private String fingerprint; // Campo nuevo
+    private String fingerprint;
 
     public LicenseInfo() {}
 
@@ -15,6 +19,10 @@ public class LicenseInfo {
         this.signature = signature;
     }
 
+    /**
+     * Nombre del producto asociado a la licencia.
+     * Ej: "security-suite", "gateway-suite"
+     */
     public String getProduct() {
         return product;
     }
@@ -23,6 +31,9 @@ public class LicenseInfo {
         this.product = product;
     }
 
+    /**
+     * Dominio para el cual fue activada la licencia.
+     */
     public String getDomain() {
         return domain;
     }
@@ -31,6 +42,9 @@ public class LicenseInfo {
         this.domain = domain;
     }
 
+    /**
+     * Firma digital que valida la integridad de la licencia.
+     */
     public String getSignature() {
         return signature;
     }
@@ -39,6 +53,9 @@ public class LicenseInfo {
         this.signature = signature;
     }
 
+    /**
+     * Huella generada localmente para validación offline.
+     */
     public String getFingerprint() {
         return fingerprint;
     }
@@ -49,11 +66,11 @@ public class LicenseInfo {
 
     @Override
     public String toString() {
-       return "LicenseInfo{" +
-            "product='" + product + '\'' +
-            ", domain='" + domain + '\'' +
-            ", signature='" + signature + '\'' +
-            ", fingerprint='" + fingerprint + '\'' +
-            '}';
+        return "LicenseInfo{" +
+                "product='" + product + '\'' +
+                ", domain='" + domain + '\'' +
+                ", signature='" + signature + '\'' +
+                ", fingerprint='" + fingerprint + '\'' +
+                '}';
     }
 }
