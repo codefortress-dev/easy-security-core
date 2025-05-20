@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementación simple de almacenamiento de rate limit en memoria.
+ * Utiliza ventanas de tiempo móviles para reiniciar los contadores.
  */
 public class InMemoryRateLimitStorage implements RateLimitStorage {
 
@@ -17,7 +18,8 @@ public class InMemoryRateLimitStorage implements RateLimitStorage {
     private final Map<String, RequestData> requestMap = new ConcurrentHashMap<>();
 
     /**
-     * Intervalo por defecto (puede ser modificado desde configuración externa)
+     * Intervalo de control (por defecto 60 segundos).
+     * Puede ser modificado desde fuera para alinear con la configuración.
      */
     private long intervalMs = 60000;
 

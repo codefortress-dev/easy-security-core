@@ -3,8 +3,20 @@ package dev.codefortress.core.easy_config_ui;
 import java.lang.reflect.Field;
 import java.util.List;
 
+/**
+ * Valida las propiedades marcadas con @EasyConfigProperty
+ * dentro de clases anotadas con @AutoLoadable.
+ *
+ * Esta clase se invoca al inicio de la aplicación para asegurar
+ * que las configuraciones mínimas estén presentes y sean válidas.
+ */
 public class ConfigurationValidator {
 
+    /**
+     * Valida una instancia de configuración completa.
+     *
+     * @param configInstance clase con anotaciones de propiedades
+     */
     public static void validate(Object configInstance) {
         Class<?> clazz = configInstance.getClass();
 
@@ -26,7 +38,7 @@ public class ConfigurationValidator {
                 }
 
                 if (value instanceof String str) {
-                    if (meta.nonBlank() && (str.isBlank())) {
+                    if (meta.nonBlank() && str.isBlank()) {
                         errores.add("Propiedad '" + key + "' no debe estar en blanco.");
                     }
                 }

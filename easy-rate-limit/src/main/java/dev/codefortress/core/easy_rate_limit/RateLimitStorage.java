@@ -2,6 +2,7 @@ package dev.codefortress.core.easy_rate_limit;
 
 /**
  * Interfaz para almacenar y verificar contadores de rate limiting.
+ * Permite implementar estrategias en memoria, Redis, DB, etc.
  */
 public interface RateLimitStorage {
 

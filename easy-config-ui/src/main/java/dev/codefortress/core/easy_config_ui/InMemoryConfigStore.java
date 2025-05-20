@@ -3,6 +3,11 @@ package dev.codefortress.core.easy_config_ui;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Implementación en memoria del almacén de configuración dinámica.
+ * Utiliza ConcurrentHashMap para ser segura en entornos multihilo.
+ * No persiste los datos entre reinicios.
+ */
 public class InMemoryConfigStore implements EasyConfigStore {
 
     private final Map<String, String> store = new ConcurrentHashMap<>();

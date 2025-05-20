@@ -9,6 +9,12 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Interceptor que evalúa si una solicitud debe ser bloqueada
+ * según las reglas de rate limiting definidas en la configuración.
+ *
+ * Este interceptor se ejecuta antes de cada request.
+ */
 public class RateLimitInterceptor implements HandlerInterceptor {
 
     private final RateLimitProperties props;
@@ -19,8 +25,8 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException{
-        RateLimitContext.clear(); // Limpieza de estado anterior
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
+        RateLimitContext.clear();
 
         if (!props.isEnabled()) {
             RateLimitContext.set(RateLimitState.ALLOWED);
@@ -44,6 +50,9 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         return true;
     }
 
+    /**
+     * Clase interna que mantiene el estado por IP.
+     */
     private static class RequestTracker {
         private long windowStart = 0;
         private int count = 0;

@@ -10,6 +10,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Configuración automática del sistema de rate limiting.
+ * Registra el interceptor si la propiedad easy.rate-limit.enabled está activada.
+ */
 @AutoConfiguration
 @EnableConfigurationProperties(RateLimitProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
