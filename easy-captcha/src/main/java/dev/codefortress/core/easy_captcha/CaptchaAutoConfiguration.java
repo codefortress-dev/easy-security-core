@@ -14,7 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @AutoConfiguration
 @EnableConfigurationProperties({CaptchaProperties.class, SecuritySuiteLicenseProperties.class})
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnProperty(prefix = "easy.captcha", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "easy.captcha", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class CaptchaAutoConfiguration implements WebMvcConfigurer {
 
     private final CaptchaInterceptor captchaInterceptor;

@@ -18,7 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @AutoConfiguration
 @EnableConfigurationProperties({GeoBlockProperties.class, SecuritySuiteLicenseProperties.class})
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnProperty(prefix = "easy.geo-block", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "easy.geo-block", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
 
     private final GeoBlockInterceptor geoBlockInterceptor;

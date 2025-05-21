@@ -19,6 +19,10 @@ public class GeoBlockService {
         this.properties = props;
     }
 
+    public GeoBlockProperties getConfig() {
+    return properties;
+    }
+
     /**
      * Verifica si una IP debe ser bloqueada.
      *

@@ -21,6 +21,7 @@
     <module>easy-geo-block</module>
     <module>easy-captcha</module>
     <module>easy-config-persistence</module>
+    <module>codefortress-core-starter</module>
   </modules>
 
   <properties>

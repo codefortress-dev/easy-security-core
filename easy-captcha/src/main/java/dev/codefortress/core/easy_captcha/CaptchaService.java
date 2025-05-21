@@ -16,6 +16,10 @@ public class CaptchaService {
         this.properties = properties;
     }
 
+    public CaptchaProperties getConfig() {
+    return properties;
+}
+
     /**
      * Determina si una solicitud parece sospechosa
      * (comportamiento automatizado).

@@ -17,7 +17,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @AutoConfiguration
 @EnableConfigurationProperties(RateLimitProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnProperty(prefix = "easy.rate-limit", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "easy.rate-limit", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class RateLimitAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
