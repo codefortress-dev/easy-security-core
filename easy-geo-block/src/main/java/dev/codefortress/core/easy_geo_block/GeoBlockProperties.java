@@ -6,6 +6,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 
+/**
+ * Propiedades de configuración para el módulo de bloqueo geográfico.
+ * Permite definir países permitidos y personalizar el mensaje de rechazo.
+ */
 @ConfigurationProperties(prefix = "easy.geo-block")
 @AutoLoadable
 public class GeoBlockProperties {

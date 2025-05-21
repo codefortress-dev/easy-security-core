@@ -4,6 +4,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+/**
+ * Implementación temporal que utiliza el servicio público ipapi.co
+ * para resolver el país de una dirección IP.
+ *
+ * Útil para pruebas o MVP, pero no se recomienda para producción.
+ */
 @Component
 public class IpApiGeoLocationProvider implements GeoLocationProvider {
 

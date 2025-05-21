@@ -11,6 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Autoconfiguración para el módulo de bloqueo geográfico.
+ * Solo se activa si está habilitado en el archivo de configuración.
+ */
 @AutoConfiguration
 @EnableConfigurationProperties(GeoBlockProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
@@ -26,7 +30,7 @@ public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
     public GeoLocationProvider geoLocationProvider() {
-        return new IpApiGeoLocationProvider();
+        return new IpApiGeoLocationProvider(); // se puede reemplazar en producción
     }
 
     @Bean
@@ -49,14 +53,7 @@ public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(geoBlockInterceptor(
-            geoBlockService(geoLocationProvider(), validatedGeoBlockProperties(null)),
-            new SecuritySuiteLicenseProperties(),
-            new LicenseValidator(
-                new LicenseEnvironmentResolver(),
-                new LicenseRemoteValidator(),
-                new StoredLicenseCache(),
-                new LicenseSignatureVerifier()))
-        ).order(1);
+        registry.addInterceptor(geoBlockInterceptor(null, null, null)) // Esto se corregirá con inyección real
+                .order(1);
     }
 }

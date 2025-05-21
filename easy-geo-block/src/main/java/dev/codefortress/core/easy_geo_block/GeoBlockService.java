@@ -4,6 +4,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Locale;
 
+/**
+ * Servicio que encapsula la lógica de decisión sobre
+ * si una IP debe ser bloqueada según el país de origen.
+ */
 @Service
 public class GeoBlockService {
 
@@ -15,6 +19,12 @@ public class GeoBlockService {
         this.properties = props;
     }
 
+    /**
+     * Verifica si una IP debe ser bloqueada.
+     *
+     * @param ip dirección IP a evaluar
+     * @return true si debe bloquearse, false si se permite
+     */
     public boolean isBlocked(String ip) {
         if (!properties.isEnabled()) return false;
 
@@ -25,10 +35,16 @@ public class GeoBlockService {
         return !properties.getAllowedCountries().contains(countryCode);
     }
 
+    /**
+     * Devuelve el código de país detectado.
+     */
     public String getCountry(String ip) {
         return locationProvider.resolveCountryCode(ip);
     }
 
+    /**
+     * Devuelve el mensaje de bloqueo personalizado.
+     */
     public String getBlockMessage() {
         return properties.getBlockMessage();
     }

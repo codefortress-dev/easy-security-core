@@ -7,6 +7,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Interceptor que bloquea solicitudes sospechosas
+ * (detectadas como bots) en rutas específicas.
+ */
 public class CaptchaInterceptor implements HandlerInterceptor {
 
     private final CaptchaService captchaService;
@@ -29,6 +33,9 @@ public class CaptchaInterceptor implements HandlerInterceptor {
         return true;
     }
 
+    /**
+     * Determina si la ruta actual debe ser protegida por el interceptor.
+     */
     private boolean shouldIntercept(String uri) {
         return protectedPaths.stream().anyMatch(uri::startsWith);
     }

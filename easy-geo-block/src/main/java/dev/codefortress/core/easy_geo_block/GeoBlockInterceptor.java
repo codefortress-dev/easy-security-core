@@ -6,6 +6,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
 
+/**
+ * Interceptor que bloquea solicitudes según la ubicación geográfica
+ * detectada a partir de la dirección IP del cliente.
+ */
 public class GeoBlockInterceptor implements HandlerInterceptor {
 
     private final GeoBlockService geoBlockService;
@@ -28,6 +32,9 @@ public class GeoBlockInterceptor implements HandlerInterceptor {
         return true;
     }
 
+    /**
+     * Obtiene la IP del cliente desde el encabezado o conexión directa.
+     */
     private String extractClientIp(HttpServletRequest request) {
         String xfHeader = request.getHeader("X-Forwarded-For");
         if (xfHeader != null && !xfHeader.isBlank()) {

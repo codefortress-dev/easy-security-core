@@ -4,6 +4,10 @@ import dev.codefortress.core.easy_config_ui.EasyConfigProperty;
 import dev.codefortress.core.easy_config_ui.AutoLoadable;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Propiedades configurables para el sistema de validación anti-bot.
+ * Permite proteger endpoints sensibles sin requerir captcha visual.
+ */
 @ConfigurationProperties(prefix = "easy.captcha")
 @AutoLoadable
 public class CaptchaProperties {
@@ -23,7 +27,7 @@ public class CaptchaProperties {
     @EasyConfigProperty(description = "Mensaje mostrado si se bloquea por comportamiento automático.")
     private String blockMessage = "Parece comportamiento automático. Intenta nuevamente.";
 
-    // Getters/setters
+    // Getters y Setters
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
 

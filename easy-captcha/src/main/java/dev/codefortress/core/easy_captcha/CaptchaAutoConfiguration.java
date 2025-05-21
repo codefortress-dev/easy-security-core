@@ -13,6 +13,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+/**
+ * Configuración automática del módulo Captcha.
+ * Registra interceptor y valida licencia si está activado.
+ */
 @AutoConfiguration
 @EnableConfigurationProperties(CaptchaProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
@@ -46,16 +50,14 @@ public class CaptchaAutoConfiguration implements WebMvcConfigurer {
         return new CaptchaInterceptor(service, protectedPaths);
     }
 
+    private final CaptchaInterceptor interceptor;
+
+    public CaptchaAutoConfiguration(CaptchaInterceptor interceptor) {
+        this.interceptor = interceptor;
+    }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(captchaInterceptor(
-            captchaService(validatedCaptchaProperties(null)),
-            new SecuritySuiteLicenseProperties(),
-            new LicenseValidator(
-                new LicenseEnvironmentResolver(),
-                new LicenseRemoteValidator(),
-                new StoredLicenseCache(),
-                new LicenseSignatureVerifier()))
-        ).order(2);
+        registry.addInterceptor(interceptor).order(2);
     }
 }
