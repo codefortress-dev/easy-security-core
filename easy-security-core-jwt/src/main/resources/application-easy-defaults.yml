@@ -1,4 +1,1 @@
-easy:
-  jwt:
-    secret-key: default-secret
-    expiration-seconds: 3600
+

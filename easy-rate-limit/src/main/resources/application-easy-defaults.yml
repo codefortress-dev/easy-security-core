@@ -1,7 +1,2 @@
-easy:
-  rate-limit:
-    enabled: true
-    max-requests: 100
-    time-window-seconds: 60
 
 

@@ -1,5 +1,1 @@
-easy:
-  geo-block:
-    enabled: true
-    allowed-countries: [CL, AR, PE]
-    block-message: "Acceso denegado desde esta ubicación."
+

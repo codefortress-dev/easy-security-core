@@ -1,6 +1,0 @@
-easy:
-  license:
-    security-suite:
-      key: ""
-      trial-start-timestamp: 0
-    signature-secret: codefortress-sign-key
