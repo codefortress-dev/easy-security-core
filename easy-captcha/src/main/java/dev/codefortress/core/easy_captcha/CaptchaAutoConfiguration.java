@@ -11,17 +11,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.List;
-
-/**
- * Configuración automática del módulo Captcha.
- * Registra interceptor y valida licencia si está activado.
- */
 @AutoConfiguration
-@EnableConfigurationProperties(CaptchaProperties.class)
+@EnableConfigurationProperties({CaptchaProperties.class, SecuritySuiteLicenseProperties.class})
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnProperty(prefix = "easy.captcha", name = "enabled", havingValue = "true")
 public class CaptchaAutoConfiguration implements WebMvcConfigurer {
+
+    private final CaptchaInterceptor captchaInterceptor;
+
+    public CaptchaAutoConfiguration(CaptchaInterceptor captchaInterceptor) {
+        this.captchaInterceptor = captchaInterceptor;
+    }
 
     @Bean
     public CaptchaProperties validatedCaptchaProperties(CaptchaProperties props) {
@@ -38,26 +38,25 @@ public class CaptchaAutoConfiguration implements WebMvcConfigurer {
     @Bean
     public CaptchaInterceptor captchaInterceptor(
         CaptchaService service,
-        SecuritySuiteLicenseProperties props,
-        LicenseValidator validator
+        CaptchaProperties props,
+        SecuritySuiteLicenseProperties licenseProps,
+        LicenseValidator validator,
+        LicenseEnvironmentResolver environmentResolver
     ) {
-        LicenseCheckResult result = validator.validate(props);
-        if (result != LicenseCheckResult.VALID && result != LicenseCheckResult.TRIAL) {
-            throw new LicenseException("El módulo Captcha requiere licencia válida.");
+        LicenseCheckResult result = validator.validate(
+            licenseProps.getProduct(),
+            licenseProps.getKey(),
+            environmentResolver.resolveDomain()
+        );
+        if (!result.isValid()) {
+            throw new LicenseException("Captcha está disponible solo con licencia activa.");
         }
 
-        List<String> protectedPaths = List.of("/auth", "/register", "/api/contact");
-        return new CaptchaInterceptor(service, protectedPaths);
-    }
-
-    private final CaptchaInterceptor interceptor;
-
-    public CaptchaAutoConfiguration(CaptchaInterceptor interceptor) {
-        this.interceptor = interceptor;
+        return new CaptchaInterceptor(service, props.getProtectedPaths());
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor).order(2);
+        registry.addInterceptor(captchaInterceptor).order(2);
     }
 }

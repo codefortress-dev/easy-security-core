@@ -16,10 +16,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Solo se activa si está habilitado en el archivo de configuración.
  */
 @AutoConfiguration
-@EnableConfigurationProperties(GeoBlockProperties.class)
+@EnableConfigurationProperties({GeoBlockProperties.class, SecuritySuiteLicenseProperties.class})
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnProperty(prefix = "easy.geo-block", name = "enabled", havingValue = "true")
 public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
+
+    private final GeoBlockInterceptor geoBlockInterceptor;
+
+    public GeoBlockAutoConfiguration(GeoBlockInterceptor geoBlockInterceptor) {
+        this.geoBlockInterceptor = geoBlockInterceptor;
+    }
 
     @Bean
     public GeoBlockProperties validatedGeoBlockProperties(GeoBlockProperties props) {
@@ -30,7 +36,7 @@ public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
     public GeoLocationProvider geoLocationProvider() {
-        return new IpApiGeoLocationProvider(); // se puede reemplazar en producción
+        return new IpApiGeoLocationProvider();
     }
 
     @Bean
@@ -42,10 +48,15 @@ public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
     public GeoBlockInterceptor geoBlockInterceptor(
         GeoBlockService service,
         SecuritySuiteLicenseProperties props,
-        LicenseValidator validator
+        LicenseValidator validator,
+        LicenseEnvironmentResolver environmentResolver
     ) {
-        LicenseCheckResult result = validator.validate(props);
-        if (result != LicenseCheckResult.VALID && result != LicenseCheckResult.TRIAL) {
+        LicenseCheckResult result = validator.validate(
+            props.getProduct(),
+            props.getKey(),
+            environmentResolver.resolveDomain()
+        );
+        if (!result.isValid()) {
             throw new LicenseException("Geo-block está disponible solo con licencia activa.");
         }
         return new GeoBlockInterceptor(service);
@@ -53,7 +64,6 @@ public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(geoBlockInterceptor(null, null, null)) // Esto se corregirá con inyección real
-                .order(1);
+        registry.addInterceptor(geoBlockInterceptor).order(1);
     }
 }

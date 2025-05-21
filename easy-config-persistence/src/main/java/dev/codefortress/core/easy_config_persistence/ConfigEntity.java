@@ -39,4 +39,11 @@ public class ConfigEntity {
     public void setValue(String value) { this.value = value; }
 
     public String getType() { return type; }
-    public
+    public void setType(String type) { this.type = type; }
+
+    public String getModule() { return module; }
+    public void setModule(String module) { this.module = module; }
+
+    public String getSource() { return source; }
+    public void setSource(String source) { this.source = source; }
+}

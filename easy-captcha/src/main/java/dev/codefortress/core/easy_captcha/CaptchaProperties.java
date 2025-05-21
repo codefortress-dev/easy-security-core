@@ -4,6 +4,8 @@ import dev.codefortress.core.easy_config_ui.EasyConfigProperty;
 import dev.codefortress.core.easy_config_ui.AutoLoadable;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.List;
+
 /**
  * Propiedades configurables para el sistema de validación anti-bot.
  * Permite proteger endpoints sensibles sin requerir captcha visual.
@@ -27,6 +29,9 @@ public class CaptchaProperties {
     @EasyConfigProperty(description = "Mensaje mostrado si se bloquea por comportamiento automático.")
     private String blockMessage = "Parece comportamiento automático. Intenta nuevamente.";
 
+    @EasyConfigProperty(description = "Rutas protegidas por el captcha silencioso.")
+    private List<String> protectedPaths = List.of("/login", "/register");
+
     // Getters y Setters
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
@@ -35,6 +40,7 @@ public class CaptchaProperties {
     public void setMinResponseTimeMillis(long minResponseTimeMillis) { this.minResponseTimeMillis = minResponseTimeMillis; }
 
     public boolean isHoneypotEnabled() { return honeypotEnabled; }
+    
     public void setHoneypotEnabled(boolean honeypotEnabled) { this.honeypotEnabled = honeypotEnabled; }
 
     public String getHoneypotField() { return honeypotField; }
@@ -42,4 +48,7 @@ public class CaptchaProperties {
 
     public String getBlockMessage() { return blockMessage; }
     public void setBlockMessage(String blockMessage) { this.blockMessage = blockMessage; }
+
+    public List<String> getProtectedPaths() { return protectedPaths; }
+    public void setProtectedPaths(List<String> protectedPaths) { this.protectedPaths = protectedPaths; }
 }

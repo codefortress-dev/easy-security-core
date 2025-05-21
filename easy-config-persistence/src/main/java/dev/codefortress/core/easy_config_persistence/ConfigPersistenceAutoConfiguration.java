@@ -1,7 +1,7 @@
 package dev.codefortress.core.easy_config_persistence;
 
 import dev.codefortress.core.easy_config_ui.EasyConfigStore;
-import dev.codefortress.core.easy_config_ui.support.ConfigurationValidator;
+import dev.codefortress.core.easy_config_ui.ConfigurationValidator;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -19,7 +19,22 @@ public class ConfigPersistenceAutoConfiguration {
         ConfigurationValidator.validate(properties);
 
         if (!properties.isEnabled()) {
-            return (key) -> null; // no-op store si está deshabilitado
+            return new EasyConfigStore() {
+                @Override
+                public String get(String key) {
+                    return null;
+                }
+
+                @Override
+                public void set(String key, String value) {
+                    // no-op
+                }
+
+                @Override
+                public boolean contains(String key) {
+                    return false;
+                }
+            };
         }
 
         return new JpaConfigStore(repository);
