@@ -2,11 +2,13 @@ package dev.codefortress.core.easy_captcha;
 
 import dev.codefortress.core.easy_config_ui.ConfigurationValidator;
 import dev.codefortress.core.easy_config_ui.EasyConfigScanner;
+import dev.codefortress.core.easy_context.common.DelegatingInterceptorRegistry;
 import dev.codefortress.core.easy_licensing.*;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -17,10 +19,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ConditionalOnProperty(prefix = "easy.captcha", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class CaptchaAutoConfiguration implements WebMvcConfigurer {
 
-    private final CaptchaInterceptor captchaInterceptor;
+    private final ApplicationContext context;
 
-    public CaptchaAutoConfiguration(CaptchaInterceptor captchaInterceptor) {
-        this.captchaInterceptor = captchaInterceptor;
+    public CaptchaAutoConfiguration(ApplicationContext context) {
+        this.context = context;
     }
 
     @Bean
@@ -57,6 +59,8 @@ public class CaptchaAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(captchaInterceptor).order(2);
+        new DelegatingInterceptorRegistry()
+            .addInterceptor(context.getBean(CaptchaInterceptor.class), 2)
+            .applyTo(registry);
     }
 }

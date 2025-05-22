@@ -11,9 +11,9 @@
   </parent>
 
   <artifactId>codefortress-core-starter</artifactId>
-  <packaging>jar</packaging>
-  <name>CodeFortress Core Starter</name>
+  <name>codefortress-core-starter</name>
   <description>Starter que agrupa todos los submódulos del Core de CodeFortress</description>
+  <packaging>jar</packaging>
 
   <dependencies>
     <dependency>

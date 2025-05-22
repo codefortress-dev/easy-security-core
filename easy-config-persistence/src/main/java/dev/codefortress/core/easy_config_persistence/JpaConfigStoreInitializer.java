@@ -15,14 +15,13 @@ public class JpaConfigStoreInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(JpaConfigStoreInitializer.class);
 
-    private final JpaConfigStore jpaStore;
     private final EasyConfigStore activeStore;
     private final ConfigRepository repository;
 
-    public JpaConfigStoreInitializer(JpaConfigStore jpaStore,
-                                     EasyConfigStore activeStore,
-                                     ConfigRepository repository) {
-        this.jpaStore = jpaStore;
+    public JpaConfigStoreInitializer(
+        EasyConfigStore activeStore,
+        ConfigRepository repository
+    ) {
         this.activeStore = activeStore;
         this.repository = repository;
     }

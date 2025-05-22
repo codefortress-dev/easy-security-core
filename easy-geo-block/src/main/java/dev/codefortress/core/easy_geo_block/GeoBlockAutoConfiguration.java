@@ -2,29 +2,27 @@ package dev.codefortress.core.easy_geo_block;
 
 import dev.codefortress.core.easy_config_ui.ConfigurationValidator;
 import dev.codefortress.core.easy_config_ui.EasyConfigScanner;
+import dev.codefortress.core.easy_context.common.DelegatingInterceptorRegistry;
 import dev.codefortress.core.easy_licensing.*;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Autoconfiguración para el módulo de bloqueo geográfico.
- * Solo se activa si está habilitado en el archivo de configuración.
- */
 @AutoConfiguration
 @EnableConfigurationProperties({GeoBlockProperties.class, SecuritySuiteLicenseProperties.class})
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnProperty(prefix = "easy.geo-block", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
 
-    private final GeoBlockInterceptor geoBlockInterceptor;
+    private final ApplicationContext context;
 
-    public GeoBlockAutoConfiguration(GeoBlockInterceptor geoBlockInterceptor) {
-        this.geoBlockInterceptor = geoBlockInterceptor;
+    public GeoBlockAutoConfiguration(ApplicationContext context) {
+        this.context = context;
     }
 
     @Bean
@@ -36,7 +34,7 @@ public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
     public GeoLocationProvider geoLocationProvider() {
-        return new IpApiGeoLocationProvider();
+        return new IpApiGeoLocationProvider(); // reemplazable por GeoLite2
     }
 
     @Bean
@@ -64,6 +62,8 @@ public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(geoBlockInterceptor).order(1);
+        new DelegatingInterceptorRegistry()
+            .addInterceptor(context.getBean(GeoBlockInterceptor.class), 1)
+            .applyTo(registry);
     }
 }

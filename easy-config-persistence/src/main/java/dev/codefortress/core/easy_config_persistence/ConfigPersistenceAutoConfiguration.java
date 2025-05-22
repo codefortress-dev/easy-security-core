@@ -8,6 +8,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * Autoconfiguración para la persistencia de configuraciones dinámicas.
+ */
 @AutoConfiguration
 @ConditionalOnClass({EasyConfigStore.class, JpaConfigStore.class})
 @EnableConfigurationProperties(ConfigPersistenceProperties.class)
@@ -46,9 +49,10 @@ public class ConfigPersistenceAutoConfiguration {
     }
 
     @Bean
-    public JpaConfigStoreInitializer jpaConfigStoreInitializer(JpaConfigStore jpaStore,
-                                                               EasyConfigStore activeStore,
-                                                               ConfigRepository repository) {
-        return new JpaConfigStoreInitializer(jpaStore, activeStore, repository);
+    public JpaConfigStoreInitializer jpaConfigStoreInitializer(
+        EasyConfigStore activeStore,
+        ConfigRepository repository
+    ) {
+        return new JpaConfigStoreInitializer( activeStore, repository);
     }
 }
