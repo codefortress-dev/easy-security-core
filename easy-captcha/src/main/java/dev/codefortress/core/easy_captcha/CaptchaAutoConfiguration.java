@@ -2,22 +2,24 @@ package dev.codefortress.core.easy_captcha;
 
 import dev.codefortress.core.easy_config_ui.ConfigurationValidator;
 import dev.codefortress.core.easy_config_ui.EasyConfigScanner;
-import dev.codefortress.core.easy_context.common.DelegatingInterceptorRegistry;
 import dev.codefortress.core.easy_licensing.*;
+import dev.codefortress.core.easy_context.common.DelegatingInterceptorRegistry;
+
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Autoconfiguración del módulo Captcha silencioso de protección contra bots.
+ */
 @AutoConfiguration
-@EnableConfigurationProperties({CaptchaProperties.class, SecuritySuiteLicenseProperties.class})
+@EnableConfigurationProperties({CaptchaProperties.class, ModuleLicenseProperties.class})
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnProperty(prefix = "easy.captcha", name = "enabled", havingValue = "true", matchIfMissing = true)
-public class CaptchaAutoConfiguration implements WebMvcConfigurer {
+@ConditionalOnProperty(prefix = "easy.captcha", name = "enabled", havingValue = "true")
+public class CaptchaAutoConfiguration {
 
     private final ApplicationContext context;
 
@@ -41,7 +43,7 @@ public class CaptchaAutoConfiguration implements WebMvcConfigurer {
     public CaptchaInterceptor captchaInterceptor(
         CaptchaService service,
         CaptchaProperties props,
-        SecuritySuiteLicenseProperties licenseProps,
+        ModuleLicenseProperties licenseProps,
         LicenseValidator validator,
         LicenseEnvironmentResolver environmentResolver
     ) {
@@ -50,17 +52,19 @@ public class CaptchaAutoConfiguration implements WebMvcConfigurer {
             licenseProps.getKey(),
             environmentResolver.resolveDomain()
         );
-        if (!result.isValid()) {
+        if (!result.isValid() && !result.isTrial()) {
             throw new LicenseException("Captcha está disponible solo con licencia activa.");
         }
 
         return new CaptchaInterceptor(service, props.getProtectedPaths());
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        new DelegatingInterceptorRegistry()
-            .addInterceptor(context.getBean(CaptchaInterceptor.class), 2)
-            .applyTo(registry);
+    @Bean
+    public Object captchaInterceptorRegistration(
+        DelegatingInterceptorRegistry registry,
+        CaptchaInterceptor interceptor
+    ) {
+        registry.addInterceptor(interceptor,2);
+        return new Object(); // placeholder para forzar el registro sin errores
     }
 }

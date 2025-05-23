@@ -4,20 +4,23 @@ import dev.codefortress.core.easy_config_ui.ConfigurationValidator;
 import dev.codefortress.core.easy_config_ui.EasyConfigScanner;
 import dev.codefortress.core.easy_context.common.DelegatingInterceptorRegistry;
 import dev.codefortress.core.easy_licensing.*;
+
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Autoconfiguración para el módulo de bloqueo geográfico.
+ * Se activa solo si está habilitado en la configuración.
+ */
 @AutoConfiguration
-@EnableConfigurationProperties({GeoBlockProperties.class, SecuritySuiteLicenseProperties.class})
+@EnableConfigurationProperties({GeoBlockProperties.class, ModuleLicenseProperties.class})
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnProperty(prefix = "easy.geo-block", name = "enabled", havingValue = "true", matchIfMissing = true)
-public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
+@ConditionalOnProperty(prefix = "easy.geo-block", name = "enabled", havingValue = "true")
+public class GeoBlockAutoConfiguration {
 
     private final ApplicationContext context;
 
@@ -34,7 +37,7 @@ public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
 
     @Bean
     public GeoLocationProvider geoLocationProvider() {
-        return new IpApiGeoLocationProvider(); // reemplazable por GeoLite2
+        return new IpApiGeoLocationProvider(); // en futuro: GeoLite2
     }
 
     @Bean
@@ -45,25 +48,28 @@ public class GeoBlockAutoConfiguration implements WebMvcConfigurer {
     @Bean
     public GeoBlockInterceptor geoBlockInterceptor(
         GeoBlockService service,
-        SecuritySuiteLicenseProperties props,
+        ModuleLicenseProperties licenseProps,
         LicenseValidator validator,
-        LicenseEnvironmentResolver environmentResolver
+        LicenseEnvironmentResolver resolver
     ) {
         LicenseCheckResult result = validator.validate(
-            props.getProduct(),
-            props.getKey(),
-            environmentResolver.resolveDomain()
+            licenseProps.getProduct(),
+            licenseProps.getKey(),
+            resolver.resolveDomain()
         );
-        if (!result.isValid()) {
-            throw new LicenseException("Geo-block está disponible solo con licencia activa.");
+        if (!result.isValid() && !result.isTrial()) {
+            throw new LicenseException("GeoBlock está disponible solo con licencia activa.");
         }
+
         return new GeoBlockInterceptor(service);
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        new DelegatingInterceptorRegistry()
-            .addInterceptor(context.getBean(GeoBlockInterceptor.class), 1)
-            .applyTo(registry);
+    @Bean
+    public Object geoBlockInterceptorRegistration(
+        DelegatingInterceptorRegistry registry,
+        GeoBlockInterceptor interceptor
+    ) {
+        registry.addInterceptor(interceptor,1);
+        return new Object(); // marcador para forzar inyección
     }
 }

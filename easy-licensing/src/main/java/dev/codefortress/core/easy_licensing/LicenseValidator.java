@@ -11,13 +11,13 @@ import java.util.Objects;
  */
 public class LicenseValidator {
 
-    private final SecuritySuiteLicenseProperties properties;
+    private final ModuleLicenseProperties properties;
     private final LicenseEnvironmentResolver envResolver;
     private final LicenseRemoteValidator remoteValidator;
     private final StoredLicenseCache cache;
     private final LicenseSignatureVerifier verifier;
 
-    public LicenseValidator(SecuritySuiteLicenseProperties properties,
+    public LicenseValidator(ModuleLicenseProperties properties,
                             LicenseEnvironmentResolver envResolver,
                             LicenseRemoteValidator remoteValidator,
                             StoredLicenseCache cache,
@@ -35,7 +35,7 @@ public class LicenseValidator {
      * @param email correo del usuario que compró la licencia
      * @param password clave secreta asociada
      * @param projectOrDomain nombre del proyecto (si aún no tiene dominio) o dominio usado en la compra
-     * @return resultado de la validación (válida, inválida o error)
+     * @return resultado de la validación (válida, inválida o con error)
      */
     public LicenseCheckResult validate(String email, String password, String projectOrDomain) {
         String currentDomain = envResolver.resolveDomain();
@@ -49,14 +49,12 @@ public class LicenseValidator {
         String product = properties.getProduct();
         String key = properties.getKey();
 
-        // Solicita la validación remota al backend comercial
         LicenseInfo licencia = remoteValidator.validate(product, key, currentDomain);
 
         if (licencia == null) {
             return LicenseCheckResult.invalid("No se encontró una licencia válida para el producto: " + product);
         }
 
-        // Si aún no estaba asociada a un dominio, lo fija
         if (licencia.getDomain() == null || licencia.getDomain().isBlank()) {
             licencia.setDomain(currentDomain);
             cache.save(licencia);
@@ -64,12 +62,10 @@ public class LicenseValidator {
             return LicenseCheckResult.invalid("La licencia está registrada para otro dominio.");
         }
 
-        // Verifica la firma
         if (!verifier.verify(licencia)) {
             return LicenseCheckResult.invalid("Firma de licencia no válida.");
         }
 
-        // Genera y guarda la huella
         LicenseFingerprintGenerator generator = new LicenseFingerprintGenerator();
         licencia.setFingerprint(generator.generateFingerprint(licencia));
         cache.save(licencia);

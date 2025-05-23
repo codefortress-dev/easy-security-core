@@ -43,3 +43,4 @@ public class RateLimitAutoConfiguration implements WebMvcConfigurer {
             .applyTo(registry);
     }
 }
+ 

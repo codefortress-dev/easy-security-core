@@ -3,20 +3,20 @@ package dev.codefortress.core.easy_licensing;
 /**
  * Validador extendido que permite validar una licencia normalmente
  * y, en caso de falla, intenta activar el modo de prueba (trial)
- * si está dentro del periodo permitido.
+ * si está dentro del período permitido.
  */
 public class TrialAwareLicenseValidator {
 
     private final LicenseValidator licenseValidator;
     private final TrialMetadataStore trialStore;
-    private final SecuritySuiteLicenseProperties properties;
+    private final ModuleLicenseProperties properties;
     private final LicenseEnvironmentResolver envResolver;
     private final StoredLicenseCache cache;
 
     public TrialAwareLicenseValidator(
             LicenseValidator licenseValidator,
             TrialMetadataStore trialStore,
-            SecuritySuiteLicenseProperties properties,
+            ModuleLicenseProperties properties,
             LicenseEnvironmentResolver envResolver,
             StoredLicenseCache cache
     ) {
@@ -32,7 +32,7 @@ public class TrialAwareLicenseValidator {
      *
      * @param email correo del usuario
      * @param password clave del usuario
-     * @param projectOrDomain nombre del proyecto (si no tiene dominio) o dominio usado en la compra
+     * @param projectOrDomain nombre del proyecto (si no tiene dominio) o dominio registrado
      * @return resultado de la validación (válida, trial o inválida)
      */
     public LicenseCheckResult validate(String email, String password, String projectOrDomain) {

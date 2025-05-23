@@ -7,9 +7,6 @@ package dev.codefortress.core.easy_licensing;
  */
 public class LicenseCheckResult {
 
-    /**
-     * Estados posibles del resultado de validación.
-     */
     public enum Status {
         VALID, INVALID, TRIAL
     }
@@ -24,44 +21,29 @@ public class LicenseCheckResult {
         this.message = message;
     }
 
-    /**
-     * Crea un resultado de licencia válida.
-     */
+    /** Crea un resultado de licencia válida. */
     public static LicenseCheckResult valid(LicenseInfo license) {
         return new LicenseCheckResult(Status.VALID, license, "Licencia válida.");
     }
 
-    /**
-     * Crea un resultado de licencia inválida.
-     */
+    /** Crea un resultado de licencia inválida con un mensaje. */
     public static LicenseCheckResult invalid(String message) {
         return new LicenseCheckResult(Status.INVALID, null, message);
     }
 
-    /**
-     * Crea un resultado indicando que la aplicación se encuentra en modo trial.
-     */
+    /** Crea un resultado en modo de prueba (trial) con un mensaje. */
     public static LicenseCheckResult trial(String message) {
         return new LicenseCheckResult(Status.TRIAL, null, message);
     }
 
-    /**
-     * Indica si la licencia es válida.
-     */
     public boolean isValid() {
         return status == Status.VALID;
     }
 
-    /**
-     * Indica si el sistema está en modo de prueba (trial).
-     */
     public boolean isTrial() {
         return status == Status.TRIAL;
     }
 
-    /**
-     * Indica si la licencia es inválida.
-     */
     public boolean isInvalid() {
         return status == Status.INVALID;
     }
