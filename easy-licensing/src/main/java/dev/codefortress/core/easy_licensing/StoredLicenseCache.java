@@ -34,7 +34,7 @@ public class StoredLicenseCache {
             Properties props = load();
             String prefix = license.getProduct() + ".";
             props.setProperty(prefix + "domain", license.getDomain());
-            props.setProperty(prefix + "signature", license.getSignature());
+            props.setProperty(prefix + "signature", license.getSignedToken());
             if (license.getFingerprint() != null) {
                 props.setProperty(prefix + "fingerprint", license.getFingerprint());
             }

@@ -2,6 +2,9 @@ package dev.codefortress.core.easy_licensing;
 
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Validador central de licencias Pro.
  * Esta clase verifica si la licencia es válida para el producto,
@@ -10,6 +13,7 @@ import java.util.Objects;
  * Es usada por todos los módulos comerciales de CodeFortress.
  */
 public class LicenseValidator {
+    private static final Logger log = LoggerFactory.getLogger(LicenseValidator.class);
 
     private final ModuleLicenseProperties properties;
     private final LicenseEnvironmentResolver envResolver;
@@ -43,7 +47,8 @@ public class LicenseValidator {
         if (email == null || email.isBlank() ||
             password == null || password.isBlank() ||
             projectOrDomain == null || projectOrDomain.isBlank()) {
-            return LicenseCheckResult.invalid("Todos los parámetros (email, clave, proyecto o dominio) son obligatorios.");
+            log.warn("Todos los parámetros (email, clave, proyecto o dominio) son obligatorios.");
+            return LicenseCheckResult.INVALID;
         }
 
         String product = properties.getProduct();
@@ -52,24 +57,29 @@ public class LicenseValidator {
         LicenseInfo licencia = remoteValidator.validate(product, key, currentDomain);
 
         if (licencia == null) {
-            return LicenseCheckResult.invalid("No se encontró una licencia válida para el producto: " + product);
+            log.warn("No se encontró una licencia válida para el producto: {}", product);
+            return LicenseCheckResult.INVALID;
         }
 
         if (licencia.getDomain() == null || licencia.getDomain().isBlank()) {
             licencia.setDomain(currentDomain);
             cache.save(licencia);
         } else if (!Objects.equals(licencia.getDomain(), currentDomain)) {
-            return LicenseCheckResult.invalid("La licencia está registrada para otro dominio.");
+            log.warn("La licencia está registrada para otro dominio: {} ≠ {}", licencia.getDomain(), currentDomain);
+            return LicenseCheckResult.INVALID;
         }
 
         if (!verifier.verify(licencia)) {
-            return LicenseCheckResult.invalid("Firma de licencia no válida.");
+            log.warn("Firma de licencia no válida para el producto '{}'", product);
+            return LicenseCheckResult.INVALID;
         }
 
         LicenseFingerprintGenerator generator = new LicenseFingerprintGenerator();
         licencia.setFingerprint(generator.generateFingerprint(licencia));
         cache.save(licencia);
 
-        return LicenseCheckResult.valid(licencia);
+        log.info("Licencia válida registrada para el producto '{}' en dominio '{}'", product, currentDomain);
+        return LicenseCheckResult.VALID;
+
     }
 }
