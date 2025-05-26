@@ -1,54 +1,29 @@
 package dev.codefortress.core.easy_licensing;
 
+import dev.codefortress.core.easy_config_ui.ConfigurationValidator;
+import dev.codefortress.core.easy_config_ui.EasyConfigScanner;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 /**
- * Auto configuración base del sistema de licencias Pro.
- * Registra todos los componentes esenciales para validar licencias, manejar caché,
- * validar firmas y generar huellas.
+ * Auto configuración del sistema de licencias.
+ * Registra el validador y todas las dependencias necesarias.
  */
 @AutoConfiguration
-@EnableConfigurationProperties(ModuleLicenseProperties.class)
+@EnableConfigurationProperties({ModuleLicenseProperties.class, LicenseSignatureProperties.class})
 public class LicensingAutoConfiguration {
 
+   /*  @Bean
+    public ModuleLicenseProperties validatedProps(ModuleLicenseProperties props) {
+        EasyConfigScanner.preload(ModuleLicenseProperties.class);
+        ConfigurationValidator.validate(props);
+        return props;
+    } */
+
     @Bean
-    public LicenseEnvironmentResolver licenseEnvironmentResolver() {
+    public LicenseEnvironmentResolver environmentResolver() {
         return new LicenseEnvironmentResolver();
-    }
-
-    @Bean
-    public LicenseRemoteValidator licenseRemoteValidator() {
-        return new LicenseRemoteValidator();
-    }
-
-    @Bean
-    public StoredLicenseCache storedLicenseCache() {
-        return new StoredLicenseCache();
-    }
-
-    @Bean
-    public LicenseSignatureVerifier licenseSignatureVerifier(LicenseSignatureProperties props) {
-        return new LicenseSignatureVerifier(props.getSecret());
-    }
-
-    @Bean
-    public LicenseValidatorFactory licenseValidatorFactory(
-        LicenseEnvironmentResolver resolver,
-        LicenseRemoteValidator remoteValidator,
-        StoredLicenseCache cache,
-        LicenseSignatureVerifier verifier
-    ) {
-        return new LicenseValidatorFactory(resolver, remoteValidator, cache, verifier);
-    }
-
-    @Bean
-    public LicenseValidator licenseValidator(
-        LicenseValidatorFactory factory,
-        ModuleLicenseProperties props
-    ) {
-        return factory.create(props);
     }
 
     @Bean
@@ -57,13 +32,16 @@ public class LicensingAutoConfiguration {
     }
 
     @Bean
-    public TrialAwareLicenseValidator trialAwareLicenseValidator(
-        LicenseValidator licenseValidator,
-        TrialMetadataStore trialStore,
-        ModuleLicenseProperties properties,
-        LicenseEnvironmentResolver resolver,
-        StoredLicenseCache cache
+    public LicenseValidatorFactory licenseValidatorFactory(
+            ModuleLicenseProperties props,
+            LicenseEnvironmentResolver resolver,
+            TrialMetadataStore store
     ) {
-        return new TrialAwareLicenseValidator(licenseValidator, trialStore, properties, resolver, cache);
+        return new LicenseValidatorFactory(() -> props, () -> resolver, () -> store);
+    }
+
+    @Bean
+    public TrialAwareLicenseValidator licenseValidator(LicenseValidatorFactory factory) {
+        return factory.build();
     }
 }

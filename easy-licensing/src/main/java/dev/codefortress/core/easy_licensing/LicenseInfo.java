@@ -1,38 +1,30 @@
 package dev.codefortress.core.easy_licensing;
 
 /**
- * Representa una licencia activa, ya sea recuperada del servidor
- * o almacenada localmente en caché.
+ * Información de licencia devuelta por el servidor o usada localmente.
  */
 public class LicenseInfo {
 
-    /**
-     * Nombre del producto asociado a la licencia (ej: "security-suite", "gateway-suite").
-     */
     private String product;
-
-    /**
-     * Dominio registrado para esta licencia.
-     */
     private String domain;
-
-    /**
-     * Firma digital que valida la integridad y legitimidad de esta licencia.
-     */
-    private String signature;
-
-    /**
-     * Huella generada localmente para validar esta licencia en entornos offline.
-     */
+    private String signedToken;
     private String fingerprint;
 
-    public LicenseInfo() {}
-
-    public LicenseInfo(String product, String domain, String signature) {
+    
+public LicenseInfo(String product, String domain, String signedToken) {
         this.product = product;
         this.domain = domain;
-        this.signature = signature;
+        this.signedToken = signedToken;
     }
+
+public String getFingerprint() {
+    return fingerprint;
+}
+
+public void setFingerprint(String fingerprint) {
+    this.fingerprint = fingerprint;
+}
+
 
     public String getProduct() {
         return product;
@@ -50,29 +42,11 @@ public class LicenseInfo {
         this.domain = domain;
     }
 
-    public String getSignature() {
-        return signature;
+    public String getSignedToken() {
+        return signedToken;
     }
 
-    public void setSignature(String signature) {
-        this.signature = signature;
-    }
-
-    public String getFingerprint() {
-        return fingerprint;
-    }
-
-    public void setFingerprint(String fingerprint) {
-        this.fingerprint = fingerprint;
-    }
-
-    @Override
-    public String toString() {
-        return "LicenseInfo{" +
-                "product='" + product + '\'' +
-                ", domain='" + domain + '\'' +
-                ", signature='" + signature + '\'' +
-                ", fingerprint='" + fingerprint + '\'' +
-                '}';
+    public void setSignedToken(String signedToken) {
+        this.signedToken = signedToken;
     }
 }

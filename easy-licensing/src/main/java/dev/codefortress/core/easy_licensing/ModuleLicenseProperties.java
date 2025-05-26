@@ -1,43 +1,28 @@
 package dev.codefortress.core.easy_licensing;
 
+import dev.codefortress.core.easy_config_ui.EasyConfigProperty;
 import dev.codefortress.core.easy_config_ui.AutoLoadable;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import dev.codefortress.core.easy_config_ui.EasyConfigProperty;
+
 /**
- * Propiedades de licencia reutilizables para cualquier módulo comercial de CodeFortress.
- * Incluye clave, nombre del producto, y soporte para modo trial.
+ * Propiedades de configuración para licencias por módulo.
+ * Se cargan automáticamente desde application.properties o YAML.
  */
 @ConfigurationProperties(prefix = "easy.license")
 @AutoLoadable
 public class ModuleLicenseProperties {
 
-    /**
-     * Nombre del módulo/componente (ej: security-suite, gateway-suite, etc.)
-     */
+    @EasyConfigProperty(description = "Producto o módulo al que pertenece la licencia. Ej: 'security-suite'")
     private String product;
 
-    /**
-     * Clave de activación ingresada por el usuario.
-     */
+    @EasyConfigProperty(description = "Clave de licencia adquirida o generada")
     private String key;
 
-    /**
-     * Indica si se debe validar la licencia de este módulo.
-     */
+    @EasyConfigProperty(description = "Habilita o deshabilita la validación de licencia")
     private boolean enabled = true;
 
-    /**
-     * Timestamp en milisegundos desde epoch cuando se inició el trial en producción.
-     * Usado para verificar los 21 días de evaluación.
-     */
-    private long trialStartTimestamp = 0;
-    @EasyConfigProperty(description = "Habilita o deshabilita la validación remota del servidor de licencias")
-    private boolean remoteValidation = false;
-    
-    public boolean isRemoteValidation() { return remoteValidation; }
-    public void setRemoteValidation(boolean remoteValidation) { this.remoteValidation = remoteValidation; }
-
-    // === Getters y Setters ===
+    @EasyConfigProperty(description = "Habilita la validación remota contra el backend de licencias")
+    private boolean remoteValidation = true;
 
     public String getProduct() {
         return product;
@@ -63,11 +48,11 @@ public class ModuleLicenseProperties {
         this.enabled = enabled;
     }
 
-    public long getTrialStartTimestamp() {
-        return trialStartTimestamp;
+    public boolean isRemoteValidation() {
+        return remoteValidation;
     }
 
-    public void setTrialStartTimestamp(long trialStartTimestamp) {
-        this.trialStartTimestamp = trialStartTimestamp;
+    public void setRemoteValidation(boolean remoteValidation) {
+        this.remoteValidation = remoteValidation;
     }
 }

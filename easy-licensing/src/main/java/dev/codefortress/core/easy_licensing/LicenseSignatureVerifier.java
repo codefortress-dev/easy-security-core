@@ -37,7 +37,7 @@ public class LicenseSignatureVerifier {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(data.getBytes(StandardCharsets.UTF_8));
             String generated = Base64.getEncoder().encodeToString(hash);
-            return Objects.equals(generated, license.getSignature());
+            return Objects.equals(generated, license.getSignedToken());
         } catch (Exception e) {
             return false;
         }
